@@ -1,0 +1,11 @@
+[package]
+name = "pdfsink-rs-util"
+description = "A crate providing useful utilities for working with pdfsink-rs"
+readme = "../README.md"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+thiserror = "2.0.18"
