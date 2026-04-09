@@ -1,8 +1,8 @@
 # pdfsink-rs-util
 
-[![crates.io](https://img.shields.io/crates/v/wyzie-subs.svg)](https://crates.io/crates/wyzie-subs)
-[![Documentation](https://docs.rs/wyzie-subs/badge.svg)](https://docs.rs/wyzie_subs)
-[![MIT/Apache-2 licensed](https://img.shields.io/crates/l/wyzie-subs.svg)](./LICENSE-APACHE)
+[![crates.io](https://img.shields.io/crates/v/pdfsink-rs-util.svg)](https://crates.io/crates/pdfsink-rs-util)
+[![Documentation](https://docs.rs/pdfsink-rs-util/badge.svg)](https://docs.rs/wyzie_subs)
+[![MIT/Apache-2 licensed](https://img.shields.io/crates/l/pdfsink-rs-util.svg)](./LICENSE-APACHE)
 
 A crate providing useful utilities for working with [pdfsink-rs](https://crates.io/crates/pdfsink-rs)
 
