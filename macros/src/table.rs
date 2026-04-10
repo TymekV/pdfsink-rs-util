@@ -34,7 +34,7 @@ pub fn from_pdf_table(input: &syn::DeriveInput) -> Result<proc_macro::TokenStrea
 
     let impl_block = quote! {
         impl ::pdfsink_rs_util::table::FromPdfTable for #target {
-            fn try_parse_strict(table: &::pdfsink_rs_util::table::Table) -> ::core::result::Result<::std::vec::Vec<Self>, ::pdfsink_rs_util::table::FromTableError> {
+            fn try_parse_table(table: &::pdfsink_rs_util::table::Table) -> ::core::result::Result<::std::vec::Vec<Self>, ::pdfsink_rs_util::table::FromTableError> {
                 #strict
             }
         }

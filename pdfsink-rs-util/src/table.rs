@@ -23,13 +23,13 @@ pub enum FromTableError {
 pub trait FromPdfTable: Sized {
     /// Tries to parse a table into the target struct.
     ///
-    /// "Strict" means that if a row is malformed, the function will error out.
-    fn try_parse_strict(table: &Table) -> Result<Vec<Self>, FromTableError>;
+    /// If a row is malformed, the function will error out.
+    fn try_parse_table(table: &Table) -> Result<Vec<Self>, FromTableError>;
 
     /// Tries to parse a table into the target struct.
     ///
     /// Ignores rows that do not match.
-    fn try_parse(table: &Table) -> Vec<Self> {
+    fn parse_table(table: &Table) -> Vec<Self> {
         vec![]
     }
 }

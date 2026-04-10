@@ -17,11 +17,36 @@ pub fn generate_field_binding(
     let ty = &field.ty;
 
     let binding = if let Some(inner_ty) = extract_option_inner(ty) {
-        todo!()
+        match quote!(#inner_ty).to_string().as_str() {
+            "String" => quote! {
+                let #field_ident: #ty = row
+                    .get(#index)
+                    .ok_or(::pdfsink_rs_util::table::FromTableError::ColumnNotFound {
+                        column: #field_name_str,
+                    })?
+                    .clone();
+            },
+            "i32" | "i64" | "i128" | "u32" | "u64" | "u128" | "f32" | "f64" | "f128" => quote! {
+                let #field_ident: #ty = row
+                    .get(#index)
+                    .ok_or(::pdfsink_rs_util::table::FromTableError::ColumnNotFound {
+                        column: #field_name_str,
+                    })?
+                    .clone()
+                    .map(|v| v.parse())
+                    .transpose()?;
+            },
+            _ => {
+                return Err(
+                    darling::Error::custom(format!("unsupported type: {}", quote!(#ty)))
+                        .with_span(ty),
+                );
+            }
+        }
     } else {
         match quote!(#ty).to_string().as_str() {
             "String" => quote! {
-                let #field_ident: String = row
+                let #field_ident: #ty = row
                     .get(#index)
                     .ok_or(::pdfsink_rs_util::table::FromTableError::ColumnNotFound {
                         column: #field_name_str,
@@ -29,7 +54,6 @@ pub fn generate_field_binding(
                     .clone()
                     .ok_or(::pdfsink_rs_util::table::FromTableError::MissingValue {
                         column: #field_name_str,
-
                     })?;
             },
             "i32" | "i64" | "i128" | "u32" | "u64" | "u128" | "f32" | "f64" | "f128" => quote! {
@@ -41,7 +65,6 @@ pub fn generate_field_binding(
                     .clone()
                     .ok_or(::pdfsink_rs_util::table::FromTableError::MissingValue {
                         column: #field_name_str,
-
                     })?
                     .parse()?;
             },
