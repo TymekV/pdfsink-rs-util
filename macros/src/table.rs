@@ -2,12 +2,14 @@ use darling::Error;
 use quote::quote;
 use syn::{Data, Fields};
 
-use crate::table::field::generate_field_binding;
+use crate::table::{field::generate_field_binding, strict::strict};
 
 mod args;
 mod field;
+mod strict;
 
 pub fn from_pdf_table(input: &syn::DeriveInput) -> Result<proc_macro::TokenStream, Error> {
+    let target = &input.ident;
     let fields = match &input.data {
         Data::Struct(data_struct) => match &data_struct.fields {
             Fields::Named(fields) => &fields.named,
@@ -24,8 +26,19 @@ pub fn from_pdf_table(input: &syn::DeriveInput) -> Result<proc_macro::TokenStrea
 
     let bindings = fields
         .iter()
+        .enumerate()
         .map(generate_field_binding)
-        .collect::<Vec<_>>();
+        .collect::<Result<Vec<_>, _>>()?;
 
-    Ok(quote! {}.into())
+    let strict = strict(&bindings);
+
+    let impl_block = quote! {
+        impl ::pdfsink_rs_util::table::FromPdfTable for #target {
+            fn try_parse_strict(table: &::pdfsink_rs_util::table::Table) -> ::core::result::Result<::std::vec::Vec<Self>, ::pdfsink_rs_util::table::FromTableError> {
+                #strict
+            }
+        }
+    };
+
+    Ok(impl_block.into())
 }

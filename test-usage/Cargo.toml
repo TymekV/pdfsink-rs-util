@@ -1,0 +1,9 @@
+[package]
+name = "test-usage"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+pdfsink-rs-util = { version = "0.1.0", path = "../pdfsink-rs-util" }

@@ -1,8 +1,8 @@
 use proc_macro::TokenStream;
-use quote::quote;
 use syn::{DeriveInput, parse_macro_input};
 
 mod table;
+mod util;
 
 #[proc_macro_derive(FromPdfTable, attributes(table))]
 pub fn from_pdf_table(item: TokenStream) -> TokenStream {

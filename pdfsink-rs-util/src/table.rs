@@ -1,3 +1,5 @@
+use std::num::{ParseFloatError, ParseIntError};
+
 use thiserror::Error;
 
 pub type Table = Vec<Vec<Option<String>>>;
@@ -6,6 +8,15 @@ pub type Table = Vec<Vec<Option<String>>>;
 pub enum FromTableError {
     #[error("A column could not be found: expected column `{column}`")]
     ColumnNotFound { column: &'static str },
+
+    #[error("A valie is missing in column `{column}`")]
+    MissingValue { column: &'static str },
+
+    #[error(transparent)]
+    ParseInt(#[from] ParseIntError),
+
+    #[error(transparent)]
+    ParseFloat(#[from] ParseFloatError),
 }
 
 /// This trait allows for conversions from a table detected by `pdfsink-rs` to the target struct.
@@ -18,5 +29,7 @@ pub trait FromPdfTable: Sized {
     /// Tries to parse a table into the target struct.
     ///
     /// Ignores rows that do not match.
-    fn try_parse(table: &Table) -> Vec<Self>;
+    fn try_parse(table: &Table) -> Vec<Self> {
+        vec![]
+    }
 }
