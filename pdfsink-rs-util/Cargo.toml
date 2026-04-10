@@ -8,4 +8,5 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
+pdfsink-rs-util-macros = { version = "0.1.0", path = "../macros" }
 thiserror = "2.0.18"
