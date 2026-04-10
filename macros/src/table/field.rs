@@ -21,17 +21,17 @@ pub fn generate_field_binding(
             "String" => quote! {
                 let #field_ident: #ty = row
                     .get(#index)
-                    .ok_or(::pdfsink_rs_util::FromTableError::ColumnNotFound {
+                    .ok_or(::pdfsink_rs_util::FromTableError::ColumnNotFound(::pdfsink_rs_util::ColumnNotFound {
                         column: #field_name_str,
-                    })?
+                    }))?
                     .clone();
             },
             "i32" | "i64" | "i128" | "u32" | "u64" | "u128" | "f32" | "f64" | "f128" => quote! {
                 let #field_ident: #ty = row
                     .get(#index)
-                    .ok_or(::pdfsink_rs_util::FromTableError::ColumnNotFound {
+                    .ok_or(::pdfsink_rs_util::FromTableError::ColumnNotFound(::pdfsink_rs_util::ColumnNotFound {
                         column: #field_name_str,
-                    })?
+                    }))?
                     .clone()
                     .map(|v| v.parse())
                     .transpose()?;
@@ -48,24 +48,24 @@ pub fn generate_field_binding(
             "String" => quote! {
                 let #field_ident: #ty = row
                     .get(#index)
-                    .ok_or(::pdfsink_rs_util::FromTableError::ColumnNotFound {
+                    .ok_or(::pdfsink_rs_util::FromTableError::ColumnNotFound(::pdfsink_rs_util::ColumnNotFound {
                         column: #field_name_str,
-                    })?
+                    }))?
                     .clone()
-                    .ok_or(::pdfsink_rs_util::FromTableError::MissingValue {
+                    .ok_or(::pdfsink_rs_util::FromTableError::MissingValue(::pdfsink_rs_util::MissingValue {
                         column: #field_name_str,
-                    })?;
+                    }))?;
             },
             "i32" | "i64" | "i128" | "u32" | "u64" | "u128" | "f32" | "f64" | "f128" => quote! {
                 let #field_ident: #ty = row
                     .get(#index)
-                    .ok_or(::pdfsink_rs_util::FromTableError::ColumnNotFound {
+                    .ok_or(::pdfsink_rs_util::FromTableError::ColumnNotFound(::pdfsink_rs_util::ColumnNotFound {
                         column: #field_name_str,
-                    })?
+                    }))?
                     .clone()
-                    .ok_or(::pdfsink_rs_util::FromTableError::MissingValue {
+                    .ok_or(::pdfsink_rs_util::FromTableError::MissingValue(::pdfsink_rs_util::MissingValue {
                         column: #field_name_str,
-                    })?
+                    }))?
                     .parse()?;
             },
             _ => {

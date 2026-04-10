@@ -4,13 +4,25 @@ use thiserror::Error;
 
 pub type Table = Vec<Vec<Option<String>>>;
 
+#[derive(Error, Debug)]
+#[error("A column could not be found: expected column `{column}`")]
+pub struct ColumnNotFound {
+    pub column: &'static str,
+}
+
+#[derive(Error, Debug)]
+#[error("A value is missing in column `{column}`")]
+pub struct MissingValue {
+    pub column: &'static str,
+}
+
 #[derive(Debug, Error)]
 pub enum FromTableError {
-    #[error("A column could not be found: expected column `{column}`")]
-    ColumnNotFound { column: &'static str },
+    #[error(transparent)]
+    ColumnNotFound(#[from] ColumnNotFound),
 
-    #[error("A valie is missing in column `{column}`")]
-    MissingValue { column: &'static str },
+    #[error(transparent)]
+    MissingValue(#[from] MissingValue),
 
     #[error(transparent)]
     ParseInt(#[from] ParseIntError),
@@ -33,3 +45,6 @@ pub trait FromPdfTable: Sized {
         vec![]
     }
 }
+
+/// This trait allows to validata that a table detected by `pdfsink-rs` has the correct structure.
+pub trait ValidateTable {}
