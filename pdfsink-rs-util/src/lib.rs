@@ -5,4 +5,5 @@ pub mod table;
 #[derive(FromPdfTable)]
 struct Test {
     a: String,
+    b: f64,
 }
