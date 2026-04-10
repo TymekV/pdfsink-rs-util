@@ -1,7 +1,4 @@
-use std::error::Error;
-
-use pdfsink_rs_util::macros::FromPdfTable;
-use pdfsink_rs_util::table::FromPdfTable;
+use pdfsink_rs_util::FromPdfTable;
 
 #[derive(FromPdfTable, Debug)]
 struct Test {

@@ -9,7 +9,7 @@ pub fn strict(bindings: &[(Ident, TokenStream)]) -> TokenStream {
     quote! {
         let rows = table
             .iter()
-            .map(|row| -> ::core::result::Result<Self, ::pdfsink_rs_util::table::FromTableError> {
+            .map(|row| -> ::core::result::Result<Self, ::pdfsink_rs_util::FromTableError> {
                 #(#field_bindings)*
                 ::core::result::Result::Ok(Self { #(#idents),* })
             })
