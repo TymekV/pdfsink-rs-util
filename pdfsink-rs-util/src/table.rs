@@ -46,5 +46,14 @@ pub trait FromPdfTable: Sized {
     }
 }
 
-/// This trait allows to validata that a table detected by `pdfsink-rs` has the correct structure.
-pub trait ValidateTable {}
+#[derive(Debug, Error)]
+pub enum ValidateTableError {
+    #[error(transparent)]
+    ColumnNotFound(#[from] ColumnNotFound),
+}
+
+/// This trait allows to validate that a table detected by `pdfsink-rs` has the correct structure.
+pub trait ValidateTable {
+    /// Validates that a table has the correct structure.
+    fn validate_table(table: &Table) -> Result<(), ValidateTableError>;
+}

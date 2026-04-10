@@ -2,7 +2,7 @@ use darling::Error;
 use quote::quote;
 use syn::{Data, Fields};
 
-use crate::table::{field::generate_field_binding, strict::strict};
+use crate::from_table::{field::generate_field_binding, strict::strict};
 
 mod args;
 mod field;
