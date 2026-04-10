@@ -2,6 +2,8 @@ use std::num::{ParseFloatError, ParseIntError};
 
 use thiserror::Error;
 
+pub mod validator;
+
 pub type Table = Vec<Vec<Option<String>>>;
 
 #[derive(Error, Debug)]
@@ -50,6 +52,12 @@ pub trait FromPdfTable: Sized {
 pub enum ValidateTableError {
     #[error(transparent)]
     ColumnNotFound(#[from] ColumnNotFound),
+
+    #[error("Too many columns")]
+    TooManyColumns,
+
+    #[error("Header not found")]
+    HeaderNotFound,
 }
 
 /// This trait allows to validate that a table detected by `pdfsink-rs` has the correct structure.

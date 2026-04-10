@@ -4,7 +4,6 @@ use syn::{Data, Fields};
 
 use crate::from_table::{field::generate_field_binding, strict::strict};
 
-mod args;
 mod field;
 mod strict;
 

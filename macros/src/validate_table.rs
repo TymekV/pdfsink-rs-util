@@ -1,6 +1,12 @@
-use darling::Error;
+use darling::{Error, FromField};
+use proc_macro2::TokenStream;
 use quote::quote;
 use syn::{Data, Fields};
+
+use crate::validate_table::args::TableColumnArgs;
+
+mod args;
+mod column;
 
 pub fn validate_table(input: &syn::DeriveInput) -> Result<proc_macro::TokenStream, Error> {
     let target = &input.ident;
@@ -20,23 +26,47 @@ pub fn validate_table(input: &syn::DeriveInput) -> Result<proc_macro::TokenStrea
         }
     };
 
-    // let bindings = fields
-    //     .iter()
-    //     .enumerate()
-    //     .map(generate_field_binding)
-    //     .collect::<Result<Vec<_>, _>>()?;
+    let target_columns = fields
+        .iter()
+        .map(|field| -> Result<TokenStream, Error> {
+            let args = TableColumnArgs::from_field(field)?;
+            let exact = args.exact;
 
-    // let strict = strict(&bindings);
+            let column_name = args.name.unwrap_or(
+                field
+                    .ident
+                    .as_ref()
+                    .ok_or_else(|| {
+                        syn::Error::new_spanned(field.clone(), "expected a named field")
+                    })?
+                    .to_string(),
+            );
 
-    // let impl_block = quote! {
-    //     impl ::pdfsink_rs_util::FromPdfTable for #target {
-    //         fn try_parse_table(table: &::pdfsink_rs_util::Table) -> ::core::result::Result<::std::vec::Vec<Self>, ::pdfsink_rs_util::FromTableError> {
-    //             #strict
-    //         }
-    //     }
-    // };
+            let column = quote! {
+                ::pdfsink_rs_util::Column {
+                    name: #column_name,
+                    exact: #exact,
+                }
+            };
 
-    // Ok(impl_block.into())
-    //
-    todo!()
+            Ok(column)
+        })
+        .collect::<Result<Vec<_>, _>>()?;
+
+    let check = quote! {
+        const COLUMNS: &'static [::pdfsink_rs_util::Column] = &[#(#target_columns),*];
+        let validator = ::pdfsink_rs_util::validator::TableValidator::new(COLUMNS);
+        validator.table_matches_signature(table)?;
+        Ok(())
+    };
+
+    let impl_block = quote! {
+        impl ::pdfsink_rs_util::ValidateTable for #target {
+            fn validate_table(table: &::pdfsink_rs_util::Table) -> ::core::result::Result<(), ::pdfsink_rs_util::ValidateTableError> {
+                #check
+            }
+        }
+    };
+
+    Ok(impl_block.into())
 }

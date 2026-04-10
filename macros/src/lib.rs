@@ -15,7 +15,7 @@ pub fn from_pdf_table(item: TokenStream) -> TokenStream {
     }
 }
 
-#[proc_macro_derive(ValidateTable, attributes(table))]
+#[proc_macro_derive(ValidateTable, attributes(column))]
 pub fn validate_table(item: TokenStream) -> TokenStream {
     let input = parse_macro_input!(item as DeriveInput);
 

@@ -1,7 +1,8 @@
-use pdfsink_rs_util::FromPdfTable;
+use pdfsink_rs_util::{FromPdfTable, ValidateTable};
 
-#[derive(FromPdfTable, Debug)]
+#[derive(FromPdfTable, ValidateTable, Debug)]
 struct Test {
+    #[column(name = "AAA", exact)]
     a: String,
     b: f64,
     c: Option<i32>,
