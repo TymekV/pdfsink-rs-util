@@ -6,7 +6,6 @@ use syn::{Data, Fields};
 use crate::validate_table::args::TableColumnArgs;
 
 mod args;
-mod column;
 
 pub fn validate_table(input: &syn::DeriveInput) -> Result<proc_macro::TokenStream, Error> {
     let target = &input.ident;
