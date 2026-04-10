@@ -61,6 +61,7 @@ pub fn validate_table(input: &syn::DeriveInput) -> Result<proc_macro::TokenStrea
     };
 
     let impl_block = quote! {
+        #[automatically_derived]
         impl ::pdfsink_rs_util::ValidateTable for #target {
             fn validate_table(table: &::pdfsink_rs_util::Table) -> ::core::result::Result<(), ::pdfsink_rs_util::ValidateTableError> {
                 #check
