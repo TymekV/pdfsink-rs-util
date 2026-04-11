@@ -3,7 +3,7 @@ resolver = "2"
 members = ["pdfsink-rs-util", "macros", "test-usage"]
 
 [workspace.package]
-version = "0.1.1"
+version = "0.1.2"
 edition = "2024"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/TymekV/pdfsink-rs-util"

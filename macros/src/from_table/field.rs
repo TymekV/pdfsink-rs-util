@@ -33,7 +33,7 @@ pub fn generate_field_binding(
                         column: #field_name_str,
                     }))?
                     .clone()
-                    .map(|v| v.replace(',', ".").parse())
+                    .map(|v| v.replace(',', ".").replace(' ', "").parse())
                     .transpose()?;
             },
             _ => {
@@ -67,6 +67,7 @@ pub fn generate_field_binding(
                         column: #field_name_str,
                     }))?
                     .replace(',', ".")
+                    .replace(' ', "")
                     .parse()?;
             },
             _ => {
