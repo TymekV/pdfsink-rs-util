@@ -43,9 +43,7 @@ pub trait FromPdfTable: Sized {
     /// Tries to parse a table into the target struct.
     ///
     /// Ignores rows that do not match.
-    fn parse_table(table: &Table) -> Vec<Self> {
-        vec![]
-    }
+    fn parse_table(table: &Table) -> Vec<Self>;
 }
 
 #[derive(Debug, Error)]

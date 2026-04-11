@@ -2,9 +2,10 @@ use darling::Error;
 use quote::quote;
 use syn::{Data, Fields};
 
-use crate::from_table::{field::generate_field_binding, strict::strict};
+use crate::from_table::{field::generate_field_binding, not_strict::not_strict, strict::strict};
 
 mod field;
+mod not_strict;
 mod strict;
 
 pub fn from_pdf_table(input: &syn::DeriveInput) -> Result<proc_macro::TokenStream, Error> {
@@ -30,12 +31,17 @@ pub fn from_pdf_table(input: &syn::DeriveInput) -> Result<proc_macro::TokenStrea
         .collect::<Result<Vec<_>, _>>()?;
 
     let strict = strict(&bindings);
+    let not_strict = not_strict(&bindings);
 
     let impl_block = quote! {
         #[automatically_derived]
         impl ::pdfsink_rs_util::FromPdfTable for #target {
             fn try_parse_table(table: &::pdfsink_rs_util::Table) -> ::core::result::Result<::std::vec::Vec<Self>, ::pdfsink_rs_util::FromTableError> {
                 #strict
+            }
+
+            fn parse_table(table: &::pdfsink_rs_util::Table) -> ::std::vec::Vec<Self> {
+                #not_strict
             }
         }
     };
