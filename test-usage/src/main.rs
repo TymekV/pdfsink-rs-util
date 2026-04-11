@@ -9,7 +9,7 @@ struct Test {
 }
 
 fn main() {
-    let table = vec![vec![Some("AAA".to_string()), Some("0.0".to_string())]];
+    let table = vec![vec![Some("AAA".to_string()), Some("0,0".to_string()), None]];
     let a = Test::try_parse_table(&table).unwrap();
 
     dbg!(&a);

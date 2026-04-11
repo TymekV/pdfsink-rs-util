@@ -33,7 +33,7 @@ pub fn generate_field_binding(
                         column: #field_name_str,
                     }))?
                     .clone()
-                    .map(|v| v.parse())
+                    .map(|v| v.replace(',', ".").parse())
                     .transpose()?;
             },
             _ => {
@@ -66,6 +66,7 @@ pub fn generate_field_binding(
                     .ok_or(::pdfsink_rs_util::FromTableError::MissingValue(::pdfsink_rs_util::MissingValue {
                         column: #field_name_str,
                     }))?
+                    .replace(',', ".")
                     .parse()?;
             },
             _ => {
