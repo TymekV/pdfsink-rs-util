@@ -6,6 +6,10 @@ pub mod validator;
 
 pub type Table = Vec<Vec<Option<String>>>;
 
+fn is_missing_cell(cell: Option<&String>) -> bool {
+    cell.is_none_or(|value| value.is_empty())
+}
+
 #[derive(Debug, Error)]
 pub enum MergeError {
     #[error("Previous row is missing")]
@@ -24,9 +28,7 @@ pub fn merge_continuation_rows(
     let mut merged: Table = Vec::with_capacity(table.len());
 
     for row in table {
-        let has_required_value = row
-            .get(required_column_index)
-            .is_some_and(|value| value.is_some());
+        let has_required_value = !is_missing_cell(row.get(required_column_index).and_then(|x| x.as_ref()));
 
         if has_required_value || merged.is_empty() {
             merged.push(row.clone());
@@ -43,6 +45,10 @@ pub fn merge_continuation_rows(
             let Some(cell_value) = cell else {
                 continue;
             };
+
+            if cell_value.is_empty() {
+                continue;
+            }
 
             match previous.get_mut(index) {
                 Some(Some(previous_value)) if !previous_value.is_empty() => {
@@ -188,5 +194,32 @@ mod tests {
         assert_eq!(merged.len(), 2);
         assert_eq!(merged[0][1].as_deref(), Some("orphan"));
         assert_eq!(merged[1][0].as_deref(), Some("1"));
+    }
+
+    #[test]
+    fn treats_empty_required_cell_as_missing() {
+        let table = vec![
+            vec![
+                Some("1".to_string()),
+                Some("Foo".to_string()),
+                Some("First line".to_string()),
+            ],
+            vec![
+                Some("".to_string()),
+                None,
+                Some("Second line".to_string()),
+            ],
+            vec![
+                Some("2".to_string()),
+                Some("Bar".to_string()),
+                Some("Another".to_string()),
+            ],
+        ];
+
+        let merged = merge_continuation_rows(&table, 0).expect("merge failed");
+
+        assert_eq!(merged.len(), 2);
+        assert_eq!(merged[0][0].as_deref(), Some("1"));
+        assert_eq!(merged[0][2].as_deref(), Some("First line\nSecond line"));
     }
 }
