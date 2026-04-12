@@ -121,9 +121,12 @@ pub trait FromPdfTable: Sized {
     fn parse_table_with_merged_continuations(
         table: &Table,
         required_column_index: usize,
-    ) -> Result<Vec<Self>, MergeError> {
-        let table = merge_continuation_rows(table, required_column_index)?;
-        Ok(Self::parse_table(&table))
+    ) -> Vec<Self> {
+        if let Ok(merged_table) = merge_continuation_rows(table, required_column_index) {
+            Self::parse_table(&merged_table)
+        } else {
+            Self::parse_table(table)
+        }
     }
 }
 
