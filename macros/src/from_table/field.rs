@@ -33,7 +33,7 @@ pub fn generate_field_binding(
                         column: #field_name_str,
                     }))?
                     .clone()
-                    .map(|v| v.replace(',', ".").replace(' ', "").parse())
+                    .map(|v| ::pdfsink_rs_util::parse_number(&v))
                     .transpose()?;
             },
             _ => {
@@ -57,18 +57,17 @@ pub fn generate_field_binding(
                     }))?;
             },
             "i32" | "i64" | "i128" | "u32" | "u64" | "u128" | "f32" | "f64" | "f128" => quote! {
-                let #field_ident: #ty = row
-                    .get(#index)
-                    .ok_or(::pdfsink_rs_util::FromTableError::ColumnNotFound(::pdfsink_rs_util::ColumnNotFound {
-                        column: #field_name_str,
+                let #field_ident: #ty = ::pdfsink_rs_util::parse_number(
+                    &row
+                        .get(#index)
+                        .ok_or(::pdfsink_rs_util::FromTableError::ColumnNotFound(::pdfsink_rs_util::ColumnNotFound {
+                            column: #field_name_str,
+                        }))?
+                        .clone()
+                        .ok_or(::pdfsink_rs_util::FromTableError::MissingValue(::pdfsink_rs_util::MissingValue {
+                            column: #field_name_str,
                     }))?
-                    .clone()
-                    .ok_or(::pdfsink_rs_util::FromTableError::MissingValue(::pdfsink_rs_util::MissingValue {
-                        column: #field_name_str,
-                    }))?
-                    .replace(',', ".")
-                    .replace(' ', "")
-                    .parse()?;
+                )?;
             },
             _ => {
                 return Err(

@@ -28,7 +28,8 @@ pub fn merge_continuation_rows(
     let mut merged: Table = Vec::with_capacity(table.len());
 
     for row in table {
-        let has_required_value = !is_missing_cell(row.get(required_column_index).and_then(|x| x.as_ref()));
+        let has_required_value =
+            !is_missing_cell(row.get(required_column_index).and_then(|x| x.as_ref()));
 
         if has_required_value || merged.is_empty() {
             merged.push(row.clone());
@@ -204,11 +205,7 @@ mod tests {
                 Some("Foo".to_string()),
                 Some("First line".to_string()),
             ],
-            vec![
-                Some("".to_string()),
-                None,
-                Some("Second line".to_string()),
-            ],
+            vec![Some("".to_string()), None, Some("Second line".to_string())],
             vec![
                 Some("2".to_string()),
                 Some("Bar".to_string()),
