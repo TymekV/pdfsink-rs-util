@@ -6,12 +6,21 @@ pub mod validator;
 
 pub type Table = Vec<Vec<Option<String>>>;
 
+#[derive(Debug, Error)]
+pub enum MergeError {
+    #[error("Previous row is missing")]
+    PreviousRowMissing,
+}
+
 /// Merges malformed continuation rows into the previous row.
 ///
 /// A row is treated as continuation if `required_column_index` is missing.
 /// Non-empty continuation values are merged into the previous row, joining with `\n`
 /// when both values are present.
-pub fn merge_continuation_rows(table: &Table, required_column_index: usize) -> Table {
+pub fn merge_continuation_rows(
+    table: &Table,
+    required_column_index: usize,
+) -> Result<Table, MergeError> {
     let mut merged: Table = Vec::with_capacity(table.len());
 
     for row in table {
@@ -24,9 +33,7 @@ pub fn merge_continuation_rows(table: &Table, required_column_index: usize) -> T
             continue;
         }
 
-        let previous = merged
-            .last_mut()
-            .expect("previous row must exist when merged is not empty");
+        let previous = merged.last_mut().ok_or(MergeError::PreviousRowMissing)?;
 
         if previous.len() < row.len() {
             previous.resize(row.len(), None);
@@ -52,7 +59,7 @@ pub fn merge_continuation_rows(table: &Table, required_column_index: usize) -> T
         }
     }
 
-    merged
+    Ok(merged)
 }
 
 #[derive(Error, Debug)]
@@ -80,6 +87,9 @@ pub enum FromTableError {
 
     #[error(transparent)]
     ParseFloat(#[from] ParseFloatError),
+
+    #[error(transparent)]
+    MergeError(#[from] MergeError),
 }
 
 /// This trait allows for conversions from a table detected by `pdfsink-rs` to the target struct.
@@ -96,7 +106,7 @@ pub trait FromPdfTable: Sized {
         table: &Table,
         required_column_index: usize,
     ) -> Result<Vec<Self>, FromTableError> {
-        let table = merge_continuation_rows(table, required_column_index);
+        let table = merge_continuation_rows(table, required_column_index)?;
         Self::try_parse_table(&table)
     }
 
@@ -111,9 +121,9 @@ pub trait FromPdfTable: Sized {
     fn parse_table_with_merged_continuations(
         table: &Table,
         required_column_index: usize,
-    ) -> Vec<Self> {
-        let table = merge_continuation_rows(table, required_column_index);
-        Self::parse_table(&table)
+    ) -> Result<Vec<Self>, MergeError> {
+        let table = merge_continuation_rows(table, required_column_index)?;
+        Ok(Self::parse_table(&table))
     }
 }
 
@@ -155,7 +165,7 @@ mod tests {
             ],
         ];
 
-        let merged = merge_continuation_rows(&table, 0);
+        let merged = merge_continuation_rows(&table, 0).expect("merge failed");
 
         assert_eq!(merged.len(), 2);
         assert_eq!(merged[0][0].as_deref(), Some("1"));
@@ -170,7 +180,7 @@ mod tests {
             vec![Some("1".to_string()), Some("real".to_string())],
         ];
 
-        let merged = merge_continuation_rows(&table, 0);
+        let merged = merge_continuation_rows(&table, 0).expect("merge failed");
 
         assert_eq!(merged.len(), 2);
         assert_eq!(merged[0][1].as_deref(), Some("orphan"));
